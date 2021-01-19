@@ -1,0 +1,10 @@
+[package]
+name = "bevy_world_to_screenspace"
+version = "0.1.0"
+authors = ["Aevyrie Roessler <aevyrie@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+#bevy = {git = "https://github.com/aevyrie/bevy", branch = "world_to_screen_coords_function" }
+bevy = "0.4"
+bevy_fly_camera = "0.6.0"
