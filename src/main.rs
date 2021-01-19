@@ -23,6 +23,9 @@ fn update_text_position(
                 if let Some(coords) = world_to_screen(mesh_position, camera, &windows) {
                     style.position.left = Val::Px(coords.x - calculated.size.width/2.0);
                     style.position.bottom = Val::Px(coords.y - calculated.size.height/2.0);
+                } else {
+                    // A hack to hide the text when the cube is behind the camera
+                    style.position.bottom = Val::Px(-1000.0);
                 }
             }
         }
