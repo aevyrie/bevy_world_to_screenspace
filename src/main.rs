@@ -8,6 +8,7 @@ fn main() {
         .add_startup_system(setup.system())
         //.add_plugin(FlyCameraPlugin)
         .add_system(update_text_position.system())
+        .add_system_to_stage(stage::PRE_UPDATE, move_box.system())
         .run();
 }
 
@@ -35,6 +36,18 @@ fn update_text_position(
         }
     }
 }
+
+fn move_box(time: Res<Time>, mut query: Query<&mut Transform, With<Handle<Mesh>>>,) {
+    for mut transform in query.iter_mut() {
+        let oscillator = ((time.seconds_since_startup() * 3.7).sin() * 3.0) as f32;
+        let oscillator1 = ((time.seconds_since_startup() * 12.0 + 3.14/2.0).sin()) as f32;
+        let oscillator2 = ((time.seconds_since_startup() * 2.2).sin()*5.0) as f32;
+        transform.translation.x = oscillator;
+        transform.translation.y = oscillator1;
+        transform.translation.z = oscillator2;
+    }
+}
+
 struct FollowText;
 
 // Unit struct to mark the 3d camera for queries (As opposed to the 2d UI camera)
