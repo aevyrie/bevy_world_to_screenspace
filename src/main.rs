@@ -1,5 +1,5 @@
 use bevy::render::camera::*;
-use bevy::{prelude::*, text::CalculatedSize};
+use bevy::prelude::*;
 //use bevy_fly_camera::*;
 
 fn main() {
@@ -8,7 +8,7 @@ fn main() {
         .add_startup_system(setup.system())
         //.add_plugin(FlyCameraPlugin)
         .add_system(update_text_position.system())
-        .add_system_to_stage(stage::PRE_UPDATE, move_box.system())
+        .add_system_to_stage(CoreStage::PreUpdate, move_box.system())
         .run();
 }
 
@@ -54,17 +54,18 @@ struct FollowText;
 struct ThreeDCam;
 
 fn setup(
-    commands: &mut Commands,
+    mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let font = asset_server.load("fonts/FiraSans-Bold.ttf");
 
+    // ui camera
+    commands.spawn_bundle(UiCameraBundle::default());
+
     commands
-        // ui camera
-        .spawn(CameraUiBundle::default())
-        .spawn(TextBundle {
+        .spawn_bundle(TextBundle {
             style: Style {
                 align_self: AlignSelf::FlexEnd,
                 position_type: PositionType::Absolute,
@@ -79,21 +80,23 @@ fn setup(
                 },
                 ..Default::default()
             },
-            text: Text {
-                value: "A Cube".to_string(),
-                font,
-                style: TextStyle {
+            text: Text::with_section(
+                "A Cube".to_string(),
+                TextStyle {
+                    font,
                     font_size: 50.0,
                     color: Color::WHITE,
-                    alignment: TextAlignment::default(),
                 },
-            },
+                TextAlignment {
+                    ..Default::default()
+                }
+            ),
             ..Default::default()
         })
-        .with(FollowText);
+        .insert(FollowText);
 
     commands
-        .spawn(Camera3dBundle {
+        .spawn_bundle(PerspectiveCameraBundle {
             transform: Transform::from_matrix(Mat4::face_toward(
                 Vec3::new(0.0, 0.0, 8.0),
                 Vec3::new(0.0, 0.0, 0.0),
@@ -101,15 +104,19 @@ fn setup(
             )),
             ..Default::default()
         })
-        .with(ThreeDCam)
+        .insert(ThreeDCam);
         //.with(FlyCamera::default())
-        .spawn(PbrBundle {
+
+    commands
+        .spawn_bundle(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
             material: materials.add(Color::rgb(1.0, 1.0, 1.0).into()),
             transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
             ..Default::default()
-        })
-        .spawn(LightBundle {
+        });
+
+    commands
+        .spawn_bundle(LightBundle {
             transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
             ..Default::default()
         });
